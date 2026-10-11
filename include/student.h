@@ -20,6 +20,18 @@ public:
         this->department = department;
         this->year = year;
     }
+
+    void display() const {
+        std::cout << "ID: " << id << std::endl;
+        std::cout << "Name: " << name << std::endl;
+        std::cout << "Department: " << department << std::endl;
+        std::cout << "Year: " << year << std::endl;
+        std::cout << "Interests: ";
+        for (const auto& interest : interests) {
+            std::cout << interest << ", ";
+        }
+        std::cout << std::endl;
+    }
 };
 
 #endif

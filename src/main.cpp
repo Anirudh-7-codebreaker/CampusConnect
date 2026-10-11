@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <cctype>
 #include "student.h"
 
 using namespace std;
@@ -12,126 +14,188 @@ struct ConnectionRequest {
     string status;
 };
 
-int main() {
-    vector<Student> students;
+string toLower(string text) {
+    transform(text.begin(), text.end(), text.begin(),
+        [](unsigned char c) {
+            return static_cast<char>(tolower(c));
+        });
+    return text;
+}
 
-    // Create student profiles
-    Student s1(101, "Anirudh", "CSE", 2);
-    Student s2(102, "Rahul", "CSE", 2);
-    Student s3(103, "Priya", "ECE", 1);
-    Student s4(104, "Neha", "CSE", 2);
+void displayStudent(const Student& s) {
+    cout << "\nID: " << s.id
+         << "\nName: " << s.name
+         << "\nDepartment: " << s.department
+         << "\nYear: " << s.year
+         << "\nInterests: ";
 
-    s1.interests = {"AI", "C++"};
-    s2.interests = {"Web Development", "Startups"};
-    s3.interests = {"AI", "Robotics"};
-    s4.interests = {"AI", "Web Development"};
+    for (size_t i = 0; i < s.interests.size(); i++) {
+        if (i > 0) cout << ", ";
+        cout << s.interests[i];
+    }
 
-    students.push_back(s1);
-    students.push_back(s2);
-    students.push_back(s3);
-    students.push_back(s4);
+    cout << "\n-------------------------\n";
+}
 
-    // ID of the currently logged-in student
-    int currentUserId = 101;
-
-    // Store connection requests in memory
-    vector<ConnectionRequest> requests;
-
-    cout << "===== CAMPUS CONNECT =====\n";
-    cout << "Welcome, Anirudh!\n\n";
-
-    // Search by interest
-    string searchInterest;
-    cout << "Enter an interest to discover students: ";
-    getline(cin, searchInterest);
-
-    vector<int> matchingIds;
-
-    cout << "\nMatching students:\n\n";
-
-    for (const Student& student : students) {
-        // Do not show the current user
-        if (student.id == currentUserId) {
-            continue;
+void showAllStudents(const vector<Student>& students, int currentUserId) {
+    for (const Student& s : students) {
+        if (s.id != currentUserId) {
+            displayStudent(s);
         }
+    }
+}
 
-        for (const string& interest : student.interests) {
-            if (interest == searchInterest) {
-                cout << "ID: " << student.id << '\n';
-                cout << "Name: " << student.name << '\n';
-                cout << "Department: " << student.department << '\n';
-                cout << "Year: " << student.year << '\n';
-                cout << "----------------------\n";
+void searchByInterest(const vector<Student>& students, int currentUserId) {
+    string interest;
+    cout << "Enter an interest: ";
+    getline(cin, interest);
 
-                matchingIds.push_back(student.id);
+    string target = toLower(interest);
+    bool found = false;
+
+    for (const Student& s : students) {
+        if (s.id == currentUserId) continue;
+
+        for (const string& item : s.interests) {
+            if (toLower(item).find(target) != string::npos) {
+                displayStudent(s);
+                found = true;
                 break;
             }
         }
     }
 
-    if (matchingIds.empty()) {
-        cout << "No other students found with that interest.\n";
-        return 0;
+    if (!found) {
+        cout << "No matching students found.\n";
+    }
+}
+
+void sendRequest(const vector<Student>& students,
+                 vector<ConnectionRequest>& requests,
+                 int currentUserId) {
+    int recipientId;
+    cout << "Enter the student ID to connect with: ";
+
+    if (!(cin >> recipientId)) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Invalid ID.\n";
+        return;
+    }
+    cin.ignore(10000, '\n');
+
+    if (recipientId == currentUserId) {
+        cout << "You cannot send a request to yourself.\n";
+        return;
     }
 
-    // Choose a student
-    int selectedId;
-    cout << "\nEnter the ID you want to connect with: ";
-    cin >> selectedId;
+    auto it = find_if(students.begin(), students.end(),
+        [recipientId](const Student& s) {
+            return s.id == recipientId;
+        });
 
-    bool validChoice = false;
+    if (it == students.end()) {
+        cout << "Student ID not found.\n";
+        return;
+    }
 
-    for (int id : matchingIds) {
-        if (id == selectedId) {
-            validChoice = true;
-            break;
+    auto existing = find_if(requests.begin(), requests.end(),
+        [currentUserId, recipientId](const ConnectionRequest& r) {
+            return r.senderId == currentUserId &&
+                   r.recipientId == recipientId;
+        });
+
+    if (existing != requests.end()) {
+        cout << "You have already sent a request to this student.\n";
+        return;
+    }
+
+    requests.push_back({currentUserId, recipientId, "Pending"});
+    cout << "Connection request sent to " << it->name << "!\n";
+}
+
+void showRequests(const vector<ConnectionRequest>& requests,
+                  const vector<Student>& students) {
+    if (requests.empty()) {
+        cout << "No connection requests yet.\n";
+        return;
+    }
+
+    for (const ConnectionRequest& r : requests) {
+        string senderName = "Unknown";
+        string recipientName = "Unknown";
+
+        for (const Student& s : students) {
+            if (s.id == r.senderId) senderName = s.name;
+            if (s.id == r.recipientId) recipientName = s.name;
         }
+
+        cout << senderName << " -> " << recipientName
+             << " | Status: " << r.status << '\n';
     }
+}
 
-    if (!validChoice) {
-        cout << "Invalid selection. Please choose a displayed ID.\n";
-        return 0;
-    }
+int main() {
+    vector<Student> students = {
+        Student(101, "Anirudh", "CSE", 2),
+        Student(102, "Rahul", "CSE", 2),
+        Student(103, "Priya", "ECE", 1),
+        Student(104, "Neha", "CSE", 2)
+    };
 
-    // Create a new connection request
-    ConnectionRequest request;
-    request.senderId = currentUserId;
-    request.recipientId = selectedId;
-    request.status = "Pending";
+    students[0].interests = {"AI", "C++"};
+    students[1].interests = {"Web Development", "Startups"};
+    students[2].interests = {"AI", "Robotics"};
+    students[3].interests = {"AI", "Web Development"};
 
-    requests.push_back(request);
+    vector<ConnectionRequest> requests;
+    const int currentUserId = 101;
 
-    cout << "\nConnection request sent to ";
+    int choice;
 
-    for (const Student& student : students) {
-        if (student.id == selectedId) {
-            cout << student.name << "!\n";
-            break;
+    do {
+        cout << "\n===== CAMPUS CONNECT =====\n"
+             << "1. View students\n"
+             << "2. Search by interest\n"
+             << "3. Send connection request\n"
+             << "4. View connection requests\n"
+             << "5. Exit\n"
+             << "Choose an option: ";
+
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Please enter a number from 1 to 5.\n";
+            continue;
         }
-    }
+        cin.ignore(10000, '\n');
 
-    cout << "Request status: " << requests.back().status << '\n';
+        switch (choice) {
+            case 1:
+                showAllStudents(students, currentUserId);
+                break;
 
-    // Simulate the recipient responding
-    int response;
-    cout << "\nSimulate recipient response:\n";
-    cout << "1. Accept request\n";
-    cout << "2. Reject request\n";
-    cout << "Enter choice: ";
-    cin >> response;
+            case 2:
+                searchByInterest(students, currentUserId);
+                break;
 
-    if (response == 1) {
-        requests.back().status = "Accepted";
-    } else if (response == 2) {
-        requests.back().status = "Rejected";
-    } else {
-        cout << "Invalid response. Request remains pending.\n";
-    }
+            case 3:
+                sendRequest(students, requests, currentUserId);
+                break;
 
-    cout << "\n===== REQUEST SUMMARY =====\n";
-    cout << "Sender ID: " << requests.back().senderId << '\n';
-    cout << "Recipient ID: " << requests.back().recipientId << '\n';
-    cout << "Final status: " << requests.back().status << '\n';
+            case 4:
+                showRequests(requests, students);
+                break;
+
+            case 5:
+                cout << "Thanks for using Campus Connect!\n";
+                break;
+
+            default:
+                cout << "Invalid option. Choose 1-5.\n";
+        }
+
+    } while (choice != 5);
 
     return 0;
 }
