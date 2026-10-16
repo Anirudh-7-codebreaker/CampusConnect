@@ -1,12 +1,5 @@
 # CampusConnect 🎓 — Student Networking & Peer Skill Exchange Platform
 
-> **Milestone:** 40% Development Prototype (Academic Evaluation & Viva Ready)  
-> **Language / Standard:** C++17 (Standard Library only — no external frameworks or GUI)  
-> **Interface:** Pure Command-Line / Terminal Input & Output (`std::cin` / `std::cout`)  
-> **Persistence:** Flat-file storage (`ifstream` / `ofstream` / `stringstream`)  
-> **Executable:** `CampusConnect.exe` (Windows) / `CampusConnect` (Linux/macOS)  
-
----
 
 ## 1. Project Overview
 
