@@ -1,0 +1,8 @@
+{
+  "name": "Campus Connect",
+  "description": "Student networking platform to discover university peers by shared interests and collaborate on projects.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

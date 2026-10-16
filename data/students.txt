@@ -1,0 +1,10 @@
+# SkillSwap Students Record File
+# Format: ID|Name|Department|AcademicYear|TeachableSkills|DesiredSkills|Interests
+101|Anirudh Sharma|Computer Science|3|C++:Programming;Data Structures:Computer Science;Git:DevOps|Python:Programming;Machine Learning:Artificial Intelligence|Competitive Programming,Open Source
+102|Priya Patel|Data Science|3|Python:Programming;Machine Learning:Artificial Intelligence;SQL:Database|C++:Programming;Competitive Programming:Algorithms|Kaggle Competitions,Hackathons
+103|Rohan Verma|Interaction Design|2|UI/UX Design:Design;Figma:Design Tools;Blender:3D Modeling|HTML/CSS:Web Development;JavaScript:Web Development|Digital Illustration,Typography
+104|Sneha Kulkarni|Information Technology|2|HTML/CSS:Web Development;JavaScript:Web Development;React:Web Frameworks|UI/UX Design:Design;Figma:Design Tools|Frontend Architecture,Campus Web Club
+105|Vikram Joshi|Mechanical Engineering|4|CAD Modeling:Engineering;MATLAB:Simulation;Arduino:Embedded Systems|Python:Programming;Data Structures:Computer Science|Robotics,Aeromodelling
+106|Maya Nair|Electrical Engineering|3|Digital Circuit Design:Electronics;Embedded C:Embedded Systems|Arduino:Embedded Systems;Git:DevOps|IoT Projects,Hardware Hackers
+107|Aarav Gupta|Computer Science|1|Python:Programming;Linux:Systems|C++:Programming;Data Structures:Computer Science|FOSS,Cybersecurity
+108|Neha Sundaram|Business & Management|2|Public Speaking:Communication;Financial Modeling:Finance|SQL:Database;Python:Programming|Debating Club,Fintech

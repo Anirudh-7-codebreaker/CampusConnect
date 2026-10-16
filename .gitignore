@@ -1,17 +1,30 @@
-
-# Compiled executables and object files
+# Compiled binaries and executables
+SkillSwap
+SkillSwap.exe
 *.exe
+*.out
+*.app
 *.o
 *.obj
 
-# Debugging files
+# Debug symbols
+*.dSYM/
 *.pdb
 *.ilk
 
-# VS Code workspace-specific settings
+# IDE and Editor files
 .vscode/*
 !.vscode/tasks.json
 !.vscode/c_cpp_properties.json
+.idea/
+*.sublime-project
+*.sublime-workspace
 
-# Temporary files
-*.tmp
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Node artifacts if any
+node_modules/
+dist/
+.vite/

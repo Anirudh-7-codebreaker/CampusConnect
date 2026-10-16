@@ -1,0 +1,16 @@
+{
+  "name": "skillswap-cpp-terminal",
+  "version": "1.0.0",
+  "description": "SkillSwap — Peer-to-Peer Skill Exchange Terminal Prototype (C++17)",
+  "scripts": {
+    "build": "g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/user.cpp src/student.cpp src/connection_request.cpp src/match_engine.cpp src/file_manager.cpp src/skill_swap_app.cpp -o SkillSwap"
+  },
+  "keywords": [
+    "cpp17",
+    "oop",
+    "terminal",
+    "data-structures"
+  ],
+  "author": "SkillSwap Team",
+  "license": "MIT"
+}
