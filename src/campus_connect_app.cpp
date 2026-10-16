@@ -1,4 +1,4 @@
-#include "skill_swap_app.h"
+#include "campus_connect_app.h"
 #include "file_manager.h"
 #include <iostream>
 #include <iomanip>
@@ -6,27 +6,23 @@
 #include <cmath>
 #include <algorithm>
 
-// Standalone function demonstrating Runtime Polymorphism via base class reference
+// Standalone function demonstrating Runtime Polymorphism via base class User reference
 static void renderUserProfilePolymorphic(const User& user) {
-    // Dynamic dispatch resolves to Student::displayProfile() at runtime
-    user.displayProfile();
+    user.displayProfile(); // Dynamic dispatch invokes Student::displayProfile()
 }
 
-SkillSwapApp::SkillSwapApp(const std::string& studentFile, const std::string& requestFile)
-    : studentsFilePath(studentFile), requestsFilePath(requestFile), currentSessionStudentId(101) {}
+CampusConnectApp::CampusConnectApp(const std::string& studentFile, const std::string& requestFile)
+    : studentsFilePath(studentFile), requestsFilePath(requestFile) {}
 
-SkillSwapApp::~SkillSwapApp() {
-    // Clean-up handled by STL RAII
-}
+CampusConnectApp::~CampusConnectApp() {}
 
-void SkillSwapApp::init() {
+void CampusConnectApp::init() {
     FileManager::ensureDirectoryExists("data");
     FileManager::seedSampleDataIfEmpty(studentsFilePath, requestsFilePath);
-
     reloadData();
 }
 
-void SkillSwapApp::reloadData() {
+void CampusConnectApp::reloadData() {
     students.clear();
     requests.clear();
 
@@ -38,19 +34,17 @@ void SkillSwapApp::reloadData() {
     rebuildActiveConnections();
 }
 
-void SkillSwapApp::rebuildStudentIndex() {
+void CampusConnectApp::rebuildStudentIndex() {
     studentIndex.clear();
     for (size_t i = 0; i < students.size(); ++i) {
         studentIndex[students[i].getId()] = i;
     }
 }
 
-void SkillSwapApp::rebuildPendingQueue() {
-    // Clear queue (re-instantiate)
+void CampusConnectApp::rebuildPendingQueue() {
     std::queue<int> emptyQueue;
     std::swap(pendingRequestIds, emptyQueue);
 
-    // Reconstruct FIFO queue only from PENDING requests
     for (const auto& req : requests) {
         if (req.getStatus() == RequestStatus::PENDING) {
             pendingRequestIds.push(req.getRequestId());
@@ -58,7 +52,7 @@ void SkillSwapApp::rebuildPendingQueue() {
     }
 }
 
-void SkillSwapApp::rebuildActiveConnections() {
+void CampusConnectApp::rebuildActiveConnections() {
     connectionsMap.clear();
 
     for (const auto& req : requests) {
@@ -79,7 +73,7 @@ void SkillSwapApp::rebuildActiveConnections() {
     }
 }
 
-int SkillSwapApp::getNextRequestId() const {
+int CampusConnectApp::getNextRequestId() const {
     int maxId = 0;
     for (const auto& r : requests) {
         if (r.getRequestId() > maxId) maxId = r.getRequestId();
@@ -87,7 +81,7 @@ int SkillSwapApp::getNextRequestId() const {
     return maxId + 1;
 }
 
-int SkillSwapApp::getNextStudentId() const {
+int CampusConnectApp::getNextStudentId() const {
     int maxId = 100;
     for (const auto& s : students) {
         if (s.getId() > maxId) maxId = s.getId();
@@ -95,8 +89,8 @@ int SkillSwapApp::getNextStudentId() const {
     return maxId + 1;
 }
 
-// Function Overload 1: findStudent by ID (non-const) using unordered_map index
-Student* SkillSwapApp::findStudent(int id) {
+// Function Overload 1: findStudent by ID (non-const) using unordered_map
+Student* CampusConnectApp::findStudent(int id) {
     auto it = studentIndex.find(id);
     if (it != studentIndex.end() && it->second < students.size()) {
         return &students[it->second];
@@ -104,8 +98,8 @@ Student* SkillSwapApp::findStudent(int id) {
     return nullptr;
 }
 
-// Function Overload 2: findStudent by ID (const) using unordered_map index
-const Student* SkillSwapApp::findStudent(int id) const {
+// Function Overload 2: findStudent by ID (const) using unordered_map
+const Student* CampusConnectApp::findStudent(int id) const {
     auto it = studentIndex.find(id);
     if (it != studentIndex.end() && it->second < students.size()) {
         return &students[it->second];
@@ -114,7 +108,7 @@ const Student* SkillSwapApp::findStudent(int id) const {
 }
 
 // Function Overload 3: findStudent by Name (const) using normalized string search
-const Student* SkillSwapApp::findStudent(const std::string& name) const {
+const Student* CampusConnectApp::findStudent(const std::string& name) const {
     std::string normTarget = Skill::normalize(name);
     for (const auto& s : students) {
         std::string normName = Skill::normalize(s.getName());
@@ -125,47 +119,45 @@ const Student* SkillSwapApp::findStudent(const std::string& name) const {
     return nullptr;
 }
 
-// UI Formatting Helpers
-void SkillSwapApp::printBanner() const {
+// Terminal UI Helpers
+void CampusConnectApp::printBanner() const {
     std::cout << "\n";
     std::cout << "========================================================================\n";
-    std::cout << "        ____  _     _ _ _ ____                     \n";
-    std::cout << "       / ___|| |__ (_) | / ___|_      ____ _ _ __  \n";
-    std::cout << "       \\___ \\| |/ /| | | \\___ \\ \\ /\\ / / _` | '_ \\ \n";
-    std::cout << "        ___) |   < | | | |___) \\ V  V / (_| | |_) |\n";
-    std::cout << "       |____/|_|\\_\\|_|_|_|____/ \\_/\\_/ \\__,_| .__/ \n";
-    std::cout << "                                            |_|    \n";
-    std::cout << "           Peer-to-Peer University Skill Exchange  \n";
-    std::cout << "                   Terminal Prototype v1.0         \n";
+    std::cout << "   ____                                     ____                            _   \n";
+    std::cout << "  / ___|__ _ _ __ ___  _ __  _   _ ___     / ___|___  _ __  _ __   ___  ___| |_ \n";
+    std::cout << " | |   / _` | '_ ` _ \\| '_ \\| | | / __|   | |   / _ \\| '_ \\| '_ \\ / _ \\/ __| __|\n";
+    std::cout << " | |__| (_| | | | | | | |_) | |_| \\__ \\   | |__| (_) | | | | | | |  __/ (__| |_ \n";
+    std::cout << "  \\____\\__,_|_| |_| |_| .__/ \\__,_|___/    \\____\\___/|_| |_|_| |_|\\___|\\___|\\__|\n";
+    std::cout << "                      |_|                                                       \n";
+    std::cout << "           Student Networking & Peer Skill Exchange Platform\n";
     std::cout << "========================================================================\n";
 }
 
-void SkillSwapApp::printHeader(const std::string& title) const {
+void CampusConnectApp::printHeader(const std::string& title) const {
     std::cout << "\n+----------------------------------------------------------------------+\n";
     std::cout << "| " << std::left << std::setw(68) << title << " |\n";
     std::cout << "+----------------------------------------------------------------------+\n";
 }
 
-void SkillSwapApp::printDivider() const {
+void CampusConnectApp::printDivider() const {
     std::cout << "------------------------------------------------------------------------\n";
 }
 
-void SkillSwapApp::pauseForUser() const {
+void CampusConnectApp::pauseForUser() const {
     std::cout << "\n[Press Enter to continue...]";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-int SkillSwapApp::readInt(const std::string& prompt, int minVal, int maxVal) const {
+int CampusConnectApp::readInt(const std::string& prompt, int minVal, int maxVal) const {
     int val = 0;
     while (true) {
         std::cout << prompt;
         if (std::cin >> val) {
             if (val >= minVal && val <= maxVal) {
-                // Clear any leftover characters up to newline
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 return val;
             } else {
-                std::cout << "  [!] Please enter a value between " << minVal << " and " << maxVal << ".\n";
+                std::cout << "  [!] Please enter a number between " << minVal << " and " << maxVal << ".\n";
             }
         } else {
             std::cout << "  [!] Invalid numeric input. Please try again.\n";
@@ -175,24 +167,23 @@ int SkillSwapApp::readInt(const std::string& prompt, int minVal, int maxVal) con
     }
 }
 
-std::string SkillSwapApp::readLine(const std::string& prompt) const {
+std::string CampusConnectApp::readLine(const std::string& prompt) const {
     std::cout << prompt;
     std::string line;
     std::getline(std::cin, line);
-    // Trim leading and trailing spaces
     size_t first = line.find_first_not_of(" \t\r\n");
     if (first == std::string::npos) return "";
     size_t last = line.find_last_not_of(" \t\r\n");
     return line.substr(first, (last - first + 1));
 }
 
-// Feature 1: View Profiles
-void SkillSwapApp::viewAllProfiles() const {
+// 1. View Profiles
+void CampusConnectApp::viewAllProfiles() const {
     printHeader("REGISTERED STUDENT PROFILES (vector<Student> iteration)");
-    std::cout << "Total Profiles Loaded: " << students.size() << "\n\n";
+    std::cout << "Total Profiles: " << students.size() << "\n\n";
 
     if (students.empty()) {
-        std::cout << "No student profiles found. Choose option 2 to create one.\n";
+        std::cout << "No student profiles found. Choose option 3 to create one.\n";
         return;
     }
 
@@ -219,15 +210,13 @@ void SkillSwapApp::viewAllProfiles() const {
                   << std::setw(25) << sampleTeach << "\n";
     }
     printDivider();
-
-    std::cout << "\nTip: Select option 2 in main menu to inspect full details for any student.\n";
 }
 
-void SkillSwapApp::viewProfileById() {
-    printHeader("INSPECT INDIVIDUAL STUDENT PROFILE");
-    std::cout << "Lookup methods available:\n";
-    std::cout << "  [1] Lookup by Student ID (O(1) unordered_map search)\n";
-    std::cout << "  [2] Lookup by Student Name (Normalized substring search)\n";
+// 2. View/Inspect Profile
+void CampusConnectApp::viewProfileById() {
+    printHeader("INSPECT STUDENT PROFILE (Polymorphism & Overloaded Lookup)");
+    std::cout << "  [1] Search by Student ID (O(1) unordered_map search)\n";
+    std::cout << "  [2] Search by Student Name (Normalized string search)\n";
     int choice = readInt("Enter choice (1-2): ", 1, 2);
 
     const Student* student = nullptr;
@@ -236,18 +225,17 @@ void SkillSwapApp::viewProfileById() {
         student = findStudent(id); // Calls findStudent(int)
     } else {
         std::string query = readLine("Enter Student Name: ");
-        student = findStudent(query); // Calls findStudent(const string&) - Function Overloading
+        student = findStudent(query); // Calls findStudent(const string&)
     }
 
     if (!student) {
-        std::cout << "\n[!] Error: Student not found in directory.\n";
+        std::cout << "\n[!] Error: Student not found in CampusConnect directory.\n";
         return;
     }
 
-    std::cout << "\n[Demonstrating Polymorphism via base class User reference:]\n";
+    std::cout << "\n[Dynamic Dispatch: Calling pure virtual displayProfile() through base User reference]\n";
     renderUserProfilePolymorphic(*student);
 
-    // Also display connection stats
     auto it = connectionsMap.find(student->getId());
     std::cout << "  Active Connections: ";
     if (it == connectionsMap.end() || it->second.empty()) {
@@ -263,12 +251,12 @@ void SkillSwapApp::viewProfileById() {
     std::cout << "+----------------------------------------------------------------------+\n";
 }
 
-// Feature 2: Create Profile
-void SkillSwapApp::createProfile() {
-    printHeader("CREATE NEW STUDENT PROFILE");
+// 3. Create Profile
+void CampusConnectApp::createProfile() {
+    printHeader("CREATE NEW STUDENT PROFILE (Encapsulation & Validation)");
 
     int newId = getNextStudentId();
-    std::cout << "Assigned Student ID: " << newId << "\n";
+    std::cout << "Generated Student ID: #" << newId << "\n";
 
     std::string name;
     while (name.empty()) {
@@ -276,49 +264,42 @@ void SkillSwapApp::createProfile() {
         if (name.empty()) std::cout << "  [!] Name cannot be blank.\n";
     }
 
-    std::string dept = readLine("Enter Department (e.g. Computer Science, IT, Design): ");
+    std::string dept = readLine("Enter Department (e.g., Computer Science, Design, IT): ");
     if (dept.empty()) dept = "General Engineering";
 
     int year = readInt("Enter Academic Year (1-6): ", 1, 6);
 
     Student newStudent(newId, name, dept, year);
 
-    // Add teachable skills
-    std::cout << "\n--- Teachable Skills (Skills you can share/teach) ---\n";
-    std::cout << "Enter skills one by one. Press Enter with an empty name when finished.\n";
+    std::cout << "\n--- Teachable Skills (Skills you can share with peers) ---\n";
     while (true) {
-        std::string skillName = readLine("Skill Name (or empty to finish): ");
+        std::string skillName = readLine("Skill Name (leave empty to finish): ");
         if (skillName.empty()) break;
-        std::string category = readLine("Skill Category (e.g., Programming, Web, Design) [default: General]: ");
+        std::string category = readLine("Category [default: General]: ");
         if (category.empty()) category = "General";
 
-        // Demonstrating overloaded method addTeachableSkill(name, category)
         if (newStudent.addTeachableSkill(skillName, category)) {
-            std::cout << "  [+] Added teachable skill: " << skillName << "\n";
+            std::cout << "  [+] Added: " << skillName << "\n";
         } else {
-            std::cout << "  [!] Skill already in your list.\n";
+            std::cout << "  [!] Duplicate skill skipped.\n";
         }
     }
 
-    // Add desired skills
     std::cout << "\n--- Desired Skills (Skills you want to learn) ---\n";
-    std::cout << "Enter skills one by one. Press Enter with an empty name when finished.\n";
     while (true) {
-        std::string skillName = readLine("Skill Name (or empty to finish): ");
+        std::string skillName = readLine("Skill Name (leave empty to finish): ");
         if (skillName.empty()) break;
-        std::string category = readLine("Skill Category [default: General]: ");
+        std::string category = readLine("Category [default: General]: ");
         if (category.empty()) category = "General";
 
-        // Demonstrating overloaded method addDesiredSkill(name, category)
         if (newStudent.addDesiredSkill(skillName, category)) {
-            std::cout << "  [+] Added desired skill: " << skillName << "\n";
+            std::cout << "  [+] Added: " << skillName << "\n";
         } else {
-            std::cout << "  [!] Skill already in your list.\n";
+            std::cout << "  [!] Duplicate skill skipped.\n";
         }
     }
 
-    // Add interests
-    std::cout << "\n--- General Interests / Hobbies ---\n";
+    std::cout << "\n--- Extracurricular Interests ---\n";
     std::string interestsLine = readLine("Enter comma-separated interests (or empty to skip): ");
     if (!interestsLine.empty()) {
         std::stringstream ss(interestsLine);
@@ -332,67 +313,44 @@ void SkillSwapApp::createProfile() {
         }
     }
 
-    // Insert into vector
     students.push_back(newStudent);
-
-    // Update ID index
     studentIndex[newId] = students.size() - 1;
 
-    // Persist immediately
     FileManager::saveStudents(studentsFilePath, students);
-
-    std::cout << "\n[✓] Student profile successfully created and saved to disk!\n";
+    std::cout << "\n[✓] Student profile created and saved to " << studentsFilePath << "!\n";
     renderUserProfilePolymorphic(newStudent);
 }
 
-// Feature 3: Priority Queue Skill Matching Engine
+// 4. Priority Queue Skill Matching Engine
 std::priority_queue<Match, std::vector<Match>, MatchComparator>
-SkillSwapApp::calculateMatches(int studentId) const {
+CampusConnectApp::calculateMatches(int studentId) const {
     std::priority_queue<Match, std::vector<Match>, MatchComparator> pq;
 
     const Student* current = findStudent(studentId);
     if (!current) return pq;
 
     for (const auto& candidate : students) {
-        // Exclude current student from self-match
         if (candidate.getId() == studentId) continue;
 
-        // Skills candidate can teach that current student wants to learn
         std::vector<Skill> toLearn = current->getMatchedSkillsToLearn(candidate);
-        // Skills current student can teach that candidate wants to learn
         std::vector<Skill> toTeach = current->getMatchedSkillsToTeach(candidate);
 
-        // Exclude candidates with zero skill overlap
         if (toLearn.empty() && toTeach.empty()) {
             continue;
         }
 
-        // Calculate Compatibility Score according to documented formula:
-        // - +20 points per desired skill candidate can teach
-        // - +20 points per teachable skill candidate wants to learn
-        // - +25 bonus points for mutual skill exchange (two-way win)
-        // - +5 bonus points if students are in the same department
-        // - +5 bonus points if academic years are adjacent (peer proximity)
         int score = 0;
         score += static_cast<int>(toLearn.size()) * 20;
         score += static_cast<int>(toTeach.size()) * 20;
 
         bool isMutual = (!toLearn.empty() && !toTeach.empty());
-        if (isMutual) {
-            score += 25; // High value on mutual reciprocity
-        }
+        if (isMutual) score += 25; // Bonus for mutual reciprocity
 
-        if (current->getDepartment() == candidate.getDepartment()) {
-            score += 5;
-        }
+        if (current->getDepartment() == candidate.getDepartment()) score += 5;
+        if (std::abs(current->getAcademicYear() - candidate.getAcademicYear()) <= 1) score += 5;
 
-        if (std::abs(current->getAcademicYear() - candidate.getAcademicYear()) <= 1) {
-            score += 5;
-        }
+        if (score > 100) score = 100;
 
-        if (score > 100) score = 100; // Cap at 100%
-
-        // Build human-readable explanation
         std::vector<std::string> toLearnNames;
         for (const auto& s : toLearn) toLearnNames.push_back(s.getName());
         std::vector<std::string> toTeachNames;
@@ -426,17 +384,16 @@ SkillSwapApp::calculateMatches(int studentId) const {
         Match match(candidate.getId(), candidate.getName(), candidate.getDepartment(),
                     candidate.getAcademicYear(), score, explanation,
                     toLearnNames, toTeachNames, isMutual);
-
         pq.push(match);
     }
 
     return pq;
 }
 
-void SkillSwapApp::findSkillMatches() {
+void CampusConnectApp::findSkillMatches() {
     printHeader("SKILL MATCHING ENGINE (priority_queue Ranked Compatibility)");
 
-    int studentId = readInt("Enter your Student ID to calculate matches: ", 1, 999999);
+    int studentId = readInt("Enter your Student ID: ", 1, 999999);
     const Student* current = findStudent(studentId);
 
     if (!current) {
@@ -444,27 +401,24 @@ void SkillSwapApp::findSkillMatches() {
         return;
     }
 
-    std::cout << "\nCalculating compatibility for: " << current->getName()
+    std::cout << "\nSearching matches for " << current->getName()
               << " (" << current->getDepartment() << ", Year " << current->getAcademicYear() << ")...\n";
 
     auto rankedMatches = calculateMatches(studentId);
 
     if (rankedMatches.empty()) {
         std::cout << "\nNo compatible matches found for your current skills.\n";
-        std::cout << "Try adding more teachable or desired skills to your profile!\n";
         return;
     }
 
     std::cout << "\nFound " << rankedMatches.size()
               << " compatible candidates (Ranked highest compatibility first by max-heap):\n\n";
 
-    // Keep ranked list in a vector for immediate connection request dispatch
     std::vector<Match> displayList;
-
     int rank = 1;
     while (!rankedMatches.empty()) {
         Match topMatch = rankedMatches.top();
-        rankedMatches.pop(); // Demonstrating priority_queue::top() and pop()
+        rankedMatches.pop();
 
         std::cout << "RANK #" << rank++ << "\n";
         topMatch.display();
@@ -473,15 +427,13 @@ void SkillSwapApp::findSkillMatches() {
         displayList.push_back(topMatch);
     }
 
-    // Interactive action: allow sending request directly to a recommended match
-    std::cout << "Would you like to send a connection request to one of these candidates?\n";
+    std::cout << "Send a connection request to a candidate?\n";
     std::cout << "  [1] Yes, send request\n";
     std::cout << "  [0] Return to main menu\n";
     int choice = readInt("Enter choice: ", 0, 1);
 
     if (choice == 1) {
         int receiverId = readInt("Enter Candidate ID to connect with: ", 1, 999999);
-        // Verify valid candidate
         bool isValidCandidate = false;
         for (const auto& m : displayList) {
             if (m.candidateId == receiverId) {
@@ -491,15 +443,14 @@ void SkillSwapApp::findSkillMatches() {
         }
 
         if (!isValidCandidate) {
-            std::cout << "[!] That ID was not among the recommended matches.\n";
+            std::cout << "[!] That ID was not among the ranked candidates.\n";
             return;
         }
 
-        // Check if duplicate pending or already connected
         for (const auto& req : requests) {
             if (req.getSenderId() == studentId && req.getReceiverId() == receiverId &&
                 req.getStatus() == RequestStatus::PENDING) {
-                std::cout << "[!] A pending connection request already exists between you and student #" << receiverId << ".\n";
+                std::cout << "[!] A pending connection request already exists.\n";
                 return;
             }
         }
@@ -507,7 +458,7 @@ void SkillSwapApp::findSkillMatches() {
         auto it = connectionsMap.find(studentId);
         if (it != connectionsMap.end()) {
             if (std::find(it->second.begin(), it->second.end(), receiverId) != it->second.end()) {
-                std::cout << "[!] You are already actively connected with student #" << receiverId << "!\n";
+                std::cout << "[!] You are already actively connected with Student #" << receiverId << "!\n";
                 return;
             }
         }
@@ -515,54 +466,48 @@ void SkillSwapApp::findSkillMatches() {
         int newReqId = getNextRequestId();
         ConnectionRequest newReq(newReqId, studentId, receiverId, RequestStatus::PENDING);
         requests.push_back(newReq);
-        pendingRequestIds.push(newReqId); // queue::push()
+        pendingRequestIds.push(newReqId);
 
         FileManager::saveRequests(requestsFilePath, requests);
-        std::cout << "\n[✓] Connection request #" << newReqId << " sent to Student #" << receiverId << " and queued for processing!\n";
+        std::cout << "\n[✓] Connection request #" << newReqId << " sent to Student #" << receiverId << "!\n";
     }
 }
 
-// Feature 4: Send Connection Request
-void SkillSwapApp::sendConnectionRequest() {
+// 5. Send Connection Request
+void CampusConnectApp::sendConnectionRequest() {
     printHeader("SEND CONNECTION REQUEST");
 
     int senderId = readInt("Enter Sender Student ID: ", 1, 999999);
     const Student* sender = findStudent(senderId);
     if (!sender) {
-        std::cout << "[!] Error: Sender Student ID #" << senderId << " does not exist.\n";
+        std::cout << "[!] Error: Sender Student ID #" << senderId << " not found.\n";
         return;
     }
 
     int receiverId = readInt("Enter Receiver Student ID: ", 1, 999999);
     const Student* receiver = findStudent(receiverId);
     if (!receiver) {
-        std::cout << "[!] Error: Receiver Student ID #" << receiverId << " does not exist.\n";
+        std::cout << "[!] Error: Receiver Student ID #" << receiverId << " not found.\n";
         return;
     }
 
-    // Business Logic Validation 1: Prevent self-requests
     if (senderId == receiverId) {
         std::cout << "[!] Validation Error: Students cannot send connection requests to themselves.\n";
         return;
     }
 
-    // Business Logic Validation 2: Prevent duplicate pending requests
     for (const auto& req : requests) {
         if (req.getSenderId() == senderId && req.getReceiverId() == receiverId &&
             req.getStatus() == RequestStatus::PENDING) {
-            std::cout << "[!] Duplicate Request: There is already a PENDING request (#"
-                      << req.getRequestId() << ") from Student #" << senderId
-                      << " to Student #" << receiverId << ".\n";
+            std::cout << "[!] Duplicate Request: A pending request already exists between these students.\n";
             return;
         }
     }
 
-    // Business Logic Validation 3: Check if already active connections
     auto it = connectionsMap.find(senderId);
     if (it != connectionsMap.end()) {
         if (std::find(it->second.begin(), it->second.end(), receiverId) != it->second.end()) {
-            std::cout << "[!] Notice: Students #" << senderId << " and #" << receiverId
-                      << " are already actively connected!\n";
+            std::cout << "[!] Notice: Students are already actively connected!\n";
             return;
         }
     }
@@ -571,38 +516,32 @@ void SkillSwapApp::sendConnectionRequest() {
     ConnectionRequest newReq(newReqId, senderId, receiverId, RequestStatus::PENDING);
 
     requests.push_back(newReq);
-    pendingRequestIds.push(newReqId); // Queue FIFO demonstration: push()
+    pendingRequestIds.push(newReqId);
 
     FileManager::saveRequests(requestsFilePath, requests);
 
-    std::cout << "\n[✓] Connection request successfully created!\n";
+    std::cout << "\n[✓] Connection request #" << newReqId << " created and added to FIFO queue!\n";
     newReq.display();
-    std::cout << "  Enqueued Request ID #" << newReqId << " for FIFO processing.\n";
-    std::cout << "  Pending Queue Size: " << pendingRequestIds.size() << "\n";
 }
 
-// Feature 5: View Pending Requests
-void SkillSwapApp::viewPendingRequests() const {
-    printHeader("PENDING CONNECTION REQUESTS (queue<int> processing pool)");
+// 6. View Pending Requests
+void CampusConnectApp::viewPendingRequests() const {
+    printHeader("PENDING CONNECTION REQUESTS (queue<int> FIFO pool)");
 
     if (pendingRequestIds.empty()) {
         std::cout << "The pending request queue is currently EMPTY.\n";
-        std::cout << "Send connection requests via option 4 to populate the queue.\n";
         return;
     }
 
-    std::cout << "Current Queue Size: " << pendingRequestIds.size()
-              << " request(s) waiting in FIFO order.\n\n";
+    std::cout << "Queue Size: " << pendingRequestIds.size() << " request(s) waiting in FIFO order.\n\n";
 
-    // Inspect copy of the queue without mutating application state
     std::queue<int> tempQueue = pendingRequestIds;
     int order = 1;
 
     while (!tempQueue.empty()) {
-        int reqId = tempQueue.front(); // Demonstrating queue::front()
-        tempQueue.pop();               // Demonstrating queue::pop()
+        int reqId = tempQueue.front();
+        tempQueue.pop();
 
-        // Locate request in vector
         for (const auto& req : requests) {
             if (req.getRequestId() == reqId) {
                 std::cout << "  FIFO Position #" << order++ << ": ";
@@ -611,8 +550,7 @@ void SkillSwapApp::viewPendingRequests() const {
                 const Student* s = findStudent(req.getSenderId());
                 const Student* r = findStudent(req.getReceiverId());
                 if (s && r) {
-                    std::cout << "    [Sender: " << s->getName() << " (" << s->getDepartment() << ") -> "
-                              << "Receiver: " << r->getName() << " (" << r->getDepartment() << ")]\n";
+                    std::cout << "    [Sender: " << s->getName() << " -> Receiver: " << r->getName() << "]\n";
                 }
                 break;
             }
@@ -620,19 +558,17 @@ void SkillSwapApp::viewPendingRequests() const {
     }
 }
 
-// Feature 6: Process Next Pending Request
-void SkillSwapApp::processNextPendingRequest() {
+// 7. Process Next Pending Request
+void CampusConnectApp::processNextPendingRequest() {
     printHeader("PROCESS NEXT PENDING REQUEST (FIFO queue::front & pop)");
 
-    if (pendingRequestIds.empty()) { // Demonstrating queue::empty()
+    if (pendingRequestIds.empty()) {
         std::cout << "[!] The pending request queue is currently EMPTY.\n";
-        std::cout << "No requests waiting to be processed.\n";
         return;
     }
 
-    int nextReqId = pendingRequestIds.front(); // queue::front()
+    int nextReqId = pendingRequestIds.front();
 
-    // Find the request record
     ConnectionRequest* targetReq = nullptr;
     for (auto& req : requests) {
         if (req.getRequestId() == nextReqId) {
@@ -642,25 +578,21 @@ void SkillSwapApp::processNextPendingRequest() {
     }
 
     if (!targetReq || targetReq->getStatus() != RequestStatus::PENDING) {
-        // If stale ID in queue, pop and retry
         pendingRequestIds.pop();
-        std::cout << "[!] Request record was no longer pending. Popped from queue.\n";
+        std::cout << "[!] Request was already resolved. Removed from queue.\n";
         return;
     }
 
     const Student* sender = findStudent(targetReq->getSenderId());
     const Student* receiver = findStudent(targetReq->getReceiverId());
 
-    std::cout << "Now processing Request #" << targetReq->getRequestId() << " (Next in FIFO queue):\n";
+    std::cout << "Processing Request #" << targetReq->getRequestId() << ":\n";
     targetReq->display();
 
     if (sender && receiver) {
-        std::cout << "\n  Sender Details   : " << sender->getName() << " (" << sender->getDepartment()
-                  << ", Year " << sender->getAcademicYear() << ")\n";
-        std::cout << "  Receiver Details : " << receiver->getName() << " (" << receiver->getDepartment()
-                  << ", Year " << receiver->getAcademicYear() << ")\n";
+        std::cout << "\n  Sender   : " << sender->getName() << " (" << sender->getDepartment() << ", Year " << sender->getAcademicYear() << ")\n";
+        std::cout << "  Receiver : " << receiver->getName() << " (" << receiver->getDepartment() << ", Year " << receiver->getAcademicYear() << ")\n";
 
-        // Display shared skill synergy
         auto toLearn = receiver->getMatchedSkillsToLearn(*sender);
         auto toTeach = receiver->getMatchedSkillsToTeach(*sender);
 
@@ -682,71 +614,64 @@ void SkillSwapApp::processNextPendingRequest() {
 
     std::cout << "\nDecision for Receiver:\n";
     std::cout << "  [1] Accept Request (Add to Active Connections list)\n";
-    std::cout << "  [2] Reject Request (Mark as Rejected)\n";
-    std::cout << "  [3] Postpone (Keep in Queue for later)\n";
+    std::cout << "  [2] Reject Request\n";
+    std::cout << "  [3] Postpone (Keep in queue)\n";
     int decision = readInt("Enter decision (1-3): ", 1, 3);
 
     if (decision == 1) {
-        pendingRequestIds.pop(); // queue::pop()
+        pendingRequestIds.pop();
         targetReq->updateStatus(RequestStatus::ACCEPTED);
 
-        // Update active connections in list<int>
         int sId = targetReq->getSenderId();
         int rId = targetReq->getReceiverId();
 
         auto& sList = connectionsMap[sId];
         if (std::find(sList.begin(), sList.end(), rId) == sList.end()) {
-            sList.push_back(rId); // list::push_back()
+            sList.push_back(rId);
         }
 
         auto& rList = connectionsMap[rId];
         if (std::find(rList.begin(), rList.end(), sId) == rList.end()) {
-            rList.push_back(sId); // list::push_back()
+            rList.push_back(sId);
         }
 
         FileManager::saveRequests(requestsFilePath, requests);
         std::cout << "\n[✓] Request #" << nextReqId << " ACCEPTED!\n";
-        std::cout << "  Active connection established between Student #" << sId
-                  << " and Student #" << rId << ".\n";
+        std::cout << "  Active connection established between Student #" << sId << " and #" << rId << ".\n";
     } else if (decision == 2) {
-        pendingRequestIds.pop(); // queue::pop()
+        pendingRequestIds.pop();
         targetReq->updateStatus(RequestStatus::REJECTED);
-
         FileManager::saveRequests(requestsFilePath, requests);
         std::cout << "\n[✓] Request #" << nextReqId << " REJECTED.\n";
     } else {
-        std::cout << "\n[-] Request postponed. Retained in queue.\n";
+        std::cout << "\n[-] Request postponed in queue.\n";
     }
-
-    std::cout << "Remaining in pending queue: " << pendingRequestIds.size() << "\n";
 }
 
-// Feature 7: View Active Connections (list<int>)
-void SkillSwapApp::viewActiveConnections() {
-    printHeader("ACTIVE CONNECTIONS (list<int> per student)");
+// 8. Active Connections
+void CampusConnectApp::viewActiveConnections() {
+    printHeader("ACTIVE CONNECTIONS (std::list<int> per student)");
 
     int studentId = readInt("Enter Student ID to view their active connections: ", 1, 999999);
     const Student* student = findStudent(studentId);
 
     if (!student) {
-        std::cout << "[!] Student ID #" << studentId << " does not exist.\n";
+        std::cout << "[!] Student ID #" << studentId << " not found.\n";
         return;
     }
 
-    std::cout << "\nActive connections for: " << student->getName()
-              << " (#" << student->getId() << ")\n";
+    std::cout << "\nActive connections for " << student->getName() << " (#" << student->getId() << "):\n";
 
     auto it = connectionsMap.find(studentId);
     if (it == connectionsMap.end() || it->second.empty()) {
-        std::cout << "No active skill exchange connections currently established.\n";
+        std::cout << "No active connections established yet.\n";
         return;
     }
 
     const std::list<int>& connList = it->second;
-    std::cout << "Total Active Connections: " << connList.size() << "\n";
+    std::cout << "Total Active Peers: " << connList.size() << "\n";
     printDivider();
 
-    // Iterate through std::list<int>
     int index = 1;
     for (auto listIt = connList.begin(); listIt != connList.end(); ++listIt) {
         int peerId = *listIt;
@@ -756,25 +681,6 @@ void SkillSwapApp::viewActiveConnections() {
         if (peer) {
             std::cout << " : " << peer->getName() << " (" << peer->getDepartment()
                       << ", Year " << peer->getAcademicYear() << ")\n";
-
-            // Show skills being exchanged
-            auto learnFromPeer = student->getMatchedSkillsToLearn(*peer);
-            auto teachToPeer = student->getMatchedSkillsToTeach(*peer);
-
-            if (!learnFromPeer.empty()) {
-                std::cout << "      Learning from peer: ";
-                for (size_t i = 0; i < learnFromPeer.size(); ++i) {
-                    std::cout << learnFromPeer[i] << (i + 1 < learnFromPeer.size() ? ", " : "");
-                }
-                std::cout << "\n";
-            }
-            if (!teachToPeer.empty()) {
-                std::cout << "      Teaching to peer  : ";
-                for (size_t i = 0; i < teachToPeer.size(); ++i) {
-                    std::cout << teachToPeer[i] << (i + 1 < teachToPeer.size() ? ", " : "");
-                }
-                std::cout << "\n";
-            }
         } else {
             std::cout << "\n";
         }
@@ -789,7 +695,6 @@ void SkillSwapApp::viewActiveConnections() {
     if (choice == 1) {
         int peerToDisconnect = readInt("Enter Peer Student ID to disconnect: ", 1, 999999);
 
-        // Check if actually in connection list
         auto& currentList = connectionsMap[studentId];
         auto found = std::find(currentList.begin(), currentList.end(), peerToDisconnect);
 
@@ -798,30 +703,26 @@ void SkillSwapApp::viewActiveConnections() {
             return;
         }
 
-        // Demonstrate std::list::remove()
         currentList.remove(peerToDisconnect);
-
-        // Remove symmetrical connection from peer's list
         connectionsMap[peerToDisconnect].remove(studentId);
 
-        // Update corresponding request in requests history if exists
         for (auto& req : requests) {
             if ((req.getSenderId() == studentId && req.getReceiverId() == peerToDisconnect) ||
                 (req.getSenderId() == peerToDisconnect && req.getReceiverId() == studentId)) {
                 if (req.getStatus() == RequestStatus::ACCEPTED) {
-                    req.updateStatus(RequestStatus::REJECTED); // Mark closed
+                    req.updateStatus(RequestStatus::REJECTED);
                 }
             }
         }
 
         FileManager::saveRequests(requestsFilePath, requests);
-        std::cout << "\n[✓] Connection between Student #" << studentId
-                  << " and Student #" << peerToDisconnect << " has been removed from active list.\n";
+        std::cout << "\n[✓] Connection disconnected between Student #" << studentId
+                  << " and #" << peerToDisconnect << ".\n";
     }
 }
 
-// Feature 8: Save Data
-void SkillSwapApp::saveData() {
+// 9. Save Data
+void CampusConnectApp::saveData() {
     printHeader("PERSIST DATA TO DISK");
 
     bool sOk = FileManager::saveStudents(studentsFilePath, students);
@@ -830,14 +731,14 @@ void SkillSwapApp::saveData() {
     if (sOk && rOk) {
         std::cout << "[✓] Data successfully saved to:\n";
         std::cout << "    - " << studentsFilePath << " (" << students.size() << " student records)\n";
-        std::cout << "    - " << requestsFilePath << " (" << requests.size() << " connection requests)\n";
+        std::cout << "    - " << requestsFilePath << " (" << requests.size() << " requests)\n";
     } else {
-        std::cout << "[!] Error occurred while writing data files.\n";
+        std::cout << "[!] Error writing data files.\n";
     }
 }
 
-// Main Interactive Loop
-void SkillSwapApp::run() {
+// Main Interactive Terminal Loop
+void CampusConnectApp::run() {
     init();
 
     while (true) {
@@ -896,13 +797,13 @@ void SkillSwapApp::run() {
                 pauseForUser();
                 break;
             case 0:
-                printHeader("THANK YOU FOR USING SKILLSWAP");
+                printHeader("THANK YOU FOR USING CAMPUSCONNECT");
                 std::cout << "Saving changes before exit...\n";
                 saveData();
-                std::cout << "Exiting SkillSwap. Happy Skill Exchanging!\n\n";
+                std::cout << "Goodbye!\n\n";
                 return;
             default:
-                std::cout << "[!] Unknown menu option.\n";
+                std::cout << "[!] Unknown option.\n";
                 pauseForUser();
                 break;
         }

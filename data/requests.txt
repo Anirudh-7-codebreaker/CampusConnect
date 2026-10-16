@@ -1,4 +1,4 @@
-# SkillSwap Connection Requests File
+# CampusConnect Connection Requests File
 # Format: RequestID|SenderStudentID|ReceiverStudentID|Status|Timestamp
 1|101|102|ACCEPTED|2026-10-16 08:30
 2|103|104|ACCEPTED|2026-10-15 14:15

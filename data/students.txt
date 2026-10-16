@@ -1,4 +1,4 @@
-# SkillSwap Students Record File
+# CampusConnect Students Record File
 # Format: ID|Name|Department|AcademicYear|TeachableSkills|DesiredSkills|Interests
 101|Anirudh Sharma|Computer Science|3|C++:Programming;Data Structures:Computer Science;Git:DevOps|Python:Programming;Machine Learning:Artificial Intelligence|Competitive Programming,Open Source
 102|Priya Patel|Data Science|3|Python:Programming;Machine Learning:Artificial Intelligence;SQL:Database|C++:Programming;Competitive Programming:Algorithms|Kaggle Competitions,Hackathons

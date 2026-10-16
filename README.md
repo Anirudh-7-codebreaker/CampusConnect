@@ -1,125 +1,146 @@
-# SkillSwap 🎓 — Peer-to-Peer Skill Exchange Platform
+# CampusConnect 🎓 — Student Networking & Peer Skill Exchange Platform
 
-> **Academic Milestone:** 40% Development Prototype  
-> **Language / Standard:** C++17 (Standard Library only)  
-> **Interface:** Terminal User Interface (TUI)  
-> **Persistence:** Flat-file persistence (`ifstream` / `ofstream` / `getline`)  
+> **Milestone:** 40% Development Prototype (Academic Evaluation & Viva Ready)  
+> **Language / Standard:** C++17 (Standard Library only — no external frameworks or GUI)  
+> **Interface:** Pure Command-Line / Terminal Input & Output (`std::cin` / `std::cout`)  
+> **Persistence:** Flat-file storage (`ifstream` / `ofstream` / `stringstream`)  
+> **Executable:** `CampusConnect.exe` (Windows) / `CampusConnect` (Linux/macOS)  
 
 ---
 
 ## 1. Project Overview
 
-**SkillSwap** is an Object-Oriented peer-to-peer skill exchange and mutual mentorship platform designed for university students. 
+**CampusConnect** is a terminal-based peer-to-peer university student networking and skill exchange platform developed in standard **C++17**.
 
-In university environments, students often excel in particular disciplines (e.g., C++ programming, UI/UX design, CAD modeling, machine learning) while wanting to learn complementary skills from peers. SkillSwap eliminates one-way transactional tutoring by algorithmically matching students based on **mutual skill reciprocity**: identifying pairs where Student A can teach what Student B wants to learn, and Student B can teach what Student A wants to learn.
-
-This terminal-based C++17 prototype represents the **40% project milestone**. It provides a fully working, demonstrable system ready for academic code walkthroughs and viva examinations.
+Students often possess specific skills (e.g. C++ programming, UI/UX design, CAD modeling, machine learning) while wanting to learn other disciplines from campus peers. CampusConnect automates this discovery by algorithmically calculating two-way compatibility scores and ranking prospective collaborators using a binary max-heap (`priority_queue`).
 
 ---
 
 ## 2. Directory Structure
 
 ```text
-SkillSwap/
+CampusConnect/
 |
 |-- .vscode/
-|   |-- tasks.json               # Custom VS Code build task for all .cpp files
+|   |-- tasks.json               # Multi-file build task for VS Code (MinGW & g++)
+|   |-- c_cpp_properties.json    # IntelliSense configuration for C++17
 |
 |-- include/
-|   |-- skill.h                  # Skill class definition & normalization
-|   |-- user.h                   # Abstract base User class
-|   |-- student.h                # Derived Student class
-|   |-- connection_request.h     # ConnectionRequest model & lifecycle
-|   |-- match.h                  # Match struct & MatchComparator for priority_queue
-|   |-- file_manager.h           # File persistence module interface
-|   |-- skill_swap_app.h         # Main application controller
+|   |-- skill.h                  # Skill class, normalization & operators
+|   |-- user.h                   # Abstract base User class (polymorphism)
+|   |-- student.h                # Derived Student class with overloads
+|   |-- connection_request.h     # ConnectionRequest model & validated FSM
+|   |-- match.h                  # Match model & MatchComparator for priority_queue
+|   |-- file_manager.h           # Flat-file persistence module interface
+|   |-- campus_connect_app.h     # Application controller & state coordinator
 |
 |-- src/
-|   |-- main.cpp                 # Application entry point
-|   |-- user.cpp                 # User base class implementation
-|   |-- student.cpp              # Student & Skill implementations
-|   |-- connection_request.cpp   # ConnectionRequest state transitions
-|   |-- match_engine.cpp         # Match display & scoring presentation
-|   |-- file_manager.cpp         # File I/O, parsing & seeding logic
-|   |-- skill_swap_app.cpp       # UI, workflows, and data structure integration
+|   |-- main.cpp                 # Clean C++ main() entry point
+|   |-- user.cpp                 # User constructors, virtual destructor, getters/setters
+|   |-- student.cpp              # Student & Skill implementations with overloading
+|   |-- connection_request.cpp   # Request lifecycle state transitions & formatting
+|   |-- match_engine.cpp         # Match display card & scoring breakdown
+|   |-- file_manager.cpp         # Robust parsing (ifstream, ofstream, stringstream)
+|   |-- campus_connect_app.cpp   # Main menu, data structures, and terminal I/O
 |
 |-- data/
-|   |-- students.txt             # Persistent student records
-|   |-- requests.txt             # Persistent connection requests
-|   |-- README.txt               # Data directory documentation & schema
+|   |-- students.txt             # Persistent student records (8 pre-seeded profiles)
+|   |-- requests.txt             # Persistent connection requests (5 pre-seeded requests)
+|   |-- README.txt               # Data directory schema and documentation
 |
 |-- docs/
-|   |-- architecture.md          # Architectural patterns & OOP breakdown
-|   |-- data_structures.md       # STL data structures mapping & complexities
+|   |-- architecture.md          # Architecture, OOP principles & scoring breakdown
+|   |-- data_structures.md       # STL data structures mapping & complexity analysis
 |
-|-- .gitignore                   # Ignores executables, objects, and editor files
-|-- README.md                    # Project manual and build guide
+|-- .gitignore                   # Excludes binaries, object files, and editor caches
+|-- README.md                    # Complete project guide and editor walkthrough
 ```
 
 ---
 
-## 3. How to Build and Run
+## 3. How to Run in VS Code / Code Editor (Step-by-Step)
 
-### Prerequisites
-- Any standard **C++17** compiler:
-  - **Linux / macOS**: `g++` (GCC 7+) or `clang++`
-  - **Windows**: MinGW-w64 (`g++`) or MSVC
+### Option A: Using VS Code's Built-in Terminal (Recommended)
 
-### Linux / macOS
-```bash
-# Compile all source files with warnings enabled
-g++ -std=c++17 -Wall -Wextra -g -I include src/*.cpp -o SkillSwap
+1. **Open Project Folder in VS Code**:
+   - Launch VS Code.
+   - Go to `File` > `Open Folder...` (or press `Ctrl+K Ctrl+O` on Windows, `Cmd+O` on macOS).
+   - Select the `CampusConnect` root directory.
 
-# Run the executable
-./SkillSwap
-```
+2. **Open the Integrated Terminal**:
+   - Press `Ctrl + ~` (tilde) or go to menu `Terminal` > `New Terminal`.
 
-### Windows (PowerShell / Command Prompt)
-If your Windows shell does not expand wildcards (`src/*.cpp`), specify translation units explicitly:
-```powershell
-g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/user.cpp src/student.cpp src/connection_request.cpp src/match_engine.cpp src/file_manager.cpp src/skill_swap_app.cpp -o SkillSwap.exe
+3. **Compile the Project**:
+   - **Windows (PowerShell or Command Prompt with MinGW/g++)**:
+     ```powershell
+     g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/user.cpp src/student.cpp src/connection_request.cpp src/match_engine.cpp src/file_manager.cpp src/campus_connect_app.cpp -o CampusConnect.exe
+     ```
+   - **Linux / macOS (Bash / Zsh)**:
+     ```bash
+     g++ -std=c++17 -Wall -Wextra -g -I include src/*.cpp -o CampusConnect
+     ```
 
-# Run the executable
-.\SkillSwap.exe
-```
-
-### Building in VS Code
-- Open the project directory in VS Code.
-- Press `Ctrl + Shift + B` (or `Cmd + Shift + B` on macOS).
-- Select **C/C++: Build SkillSwap (All Files)** to trigger the build configured in `.vscode/tasks.json`.
+4. **Run the Executable**:
+   - **Windows**:
+     ```powershell
+     .\CampusConnect.exe
+     ```
+   - **Linux / macOS**:
+     ```bash
+     ./CampusConnect
+     ```
 
 ---
 
-## 4. Key Object-Oriented Programming (OOP) Concepts
+### Option B: Using VS Code Automated Build Task (`tasks.json`)
 
-| Concept | Implementation in SkillSwap | File Reference |
+The project includes a ready-to-use `.vscode/tasks.json` configuration:
+
+1. In VS Code, press **`Ctrl + Shift + B`** (or `Cmd + Shift + B` on macOS).
+2. Select **`C/C++: Build CampusConnect.exe (Windows MinGW)`** or **`C/C++: Build CampusConnect (Linux / macOS)`**.
+3. VS Code will automatically compile all translation units without any manual commands.
+4. Open the terminal panel and execute `.\CampusConnect.exe` (Windows) or `./CampusConnect` (Linux/macOS).
+
+---
+
+### Option C: Running in CLion, Code::Blocks, or Dev-C++
+
+1. Create a new **C++ Console Application** project targeting **C++17**.
+2. Add all header files from `include/` to the project headers.
+3. Add all source files from `src/` to the project sources.
+4. Set the include search directory to `include`.
+5. Ensure the working directory contains the `data/` folder so `data/students.txt` and `data/requests.txt` are accessible.
+6. Click **Build & Run** (or press `F9` / `Ctrl+F5`).
+
+---
+
+## 4. Key Object-Oriented Programming (OOP) Principles
+
+| Concept | Implementation in CampusConnect | File Reference |
 |---|---|---|
-| **Classes & Objects** | Concrete instances of `Student`, `Skill`, `ConnectionRequest`, `Match`, and `SkillSwapApp`. | `include/*.h` |
-| **Encapsulation** | All member variables are strictly `private`. Public getters and setters validate inputs (e.g. valid IDs, academic years 1–6, non-empty names). | `user.h`, `student.h`, `skill.h` |
-| **Inheritance** | Derived class `Student` publicly inherits from abstract base class `User`. | `student.h`, `user.h` |
-| **Runtime Polymorphism** | Abstract base `User` defines pure virtual `virtual void displayProfile() const = 0` and `virtual ~User()`. `Student` overrides `displayProfile()`. Demonstrable via dynamic dispatch through base class references. | `user.h`, `student.cpp`, `skill_swap_app.cpp` |
-| **Function Overloading** | Overloaded `findStudent(int id)` vs. `findStudent(const string& name)`. Overloaded `addTeachableSkill(Skill)` vs. `addTeachableSkill(string, string)`. Overloaded `canTeach(...)` and `wantsToLearn(...)`. | `student.h`, `skill_swap_app.h` |
+| **Classes & Objects** | Concrete domain objects for `Student`, `Skill`, `ConnectionRequest`, `Match`, and `CampusConnectApp`. | `include/*.h` |
+| **Encapsulation** | Member variables are declared `private`. Public getters and setters enforce business rules (valid IDs, academic years 1–6, non-empty names). | `user.h`, `student.h`, `skill.h` |
+| **Inheritance** | `Student` publicly derives from the abstract base class `User`. | `student.h`, `user.h` |
+| **Runtime Polymorphism** | Abstract base `User` has `virtual void displayProfile() const = 0` and `virtual ~User()`. `Student` overrides `displayProfile()`. Demonstrable via dynamic dispatch through base class references (`const User&`). | `user.h`, `student.cpp`, `campus_connect_app.cpp` |
+| **Function Overloading** | Overloaded `findStudent(int id)` vs. `findStudent(const string& name)`. Overloaded `addTeachableSkill(Skill)` vs. `addTeachableSkill(string, string)`. Overloaded `canTeach(...)` and `wantsToLearn(...)`. | `student.h`, `campus_connect_app.h` |
 | **Operator Overloading** | `Skill::operator==` (case-insensitive normalized equality), `Skill::operator<` (strict weak ordering), and `operator<<` for clean stream output. | `skill.h`, `student.cpp`, `connection_request.cpp` |
 | **Composition** | `Student` owns collections of `Skill` objects (`vector<Skill> teachableSkills`, `vector<Skill> desiredSkills`). | `student.h` |
-| **Separation of Concerns** | Isolated persistence (`FileManager`), matching algorithms (`MatchEngine`), domain models, and UI controller (`SkillSwapApp`). | `src/` |
 
 ---
 
-## 5. Required STL Data Structures and Their Real Uses
-
-All five data structures play active, functional roles in the running application:
+## 5. STL Data Structures and Their Operational Roles
 
 1. **`std::vector<Student>` — Master Profile Storage**
    - Stores all registered student profiles in contiguous memory for high CPU cache efficiency.
-   - Used for iterating through all candidates during matching and writing profiles to disk.
+   - Used for profile iteration, disk serialization, and candidate iteration during matching.
 
 2. **`std::unordered_map<int, size_t>` — Fast $O(1)$ ID Index**
    - Indexes `studentId -> index in vector`.
    - Eliminates expensive $O(N)$ linear scans when looking up profiles by student ID.
-   - Rebuilt automatically upon data loading or profile creation to guarantee index consistency.
+   - Rebuilt automatically upon data loading or new profile creation.
 
 3. **`std::queue<int>` — FIFO Request Processing Queue**
-   - Manages pending connection requests in strict arrival order (First-In, First-Out).
+   - Manages pending connection requests in strict chronological arrival order (First-In, First-Out).
    - Demonstrates `push()`, `front()`, `pop()`, and `empty()`.
    - Reconstructed on startup from persistent records having `PENDING` status.
 
@@ -146,21 +167,19 @@ When matching a student with peers, the engine applies a transparent, documented
 
 ---
 
-## 7. Sample Walkthrough / Feature Demonstration
+## 7. Interactive Terminal Walkthrough
 
-On launch, SkillSwap loads existing data from `data/students.txt` and `data/requests.txt`. If the data files are empty, it automatically seeds 8 realistic sample university students and 5 connection requests:
+Upon launching `CampusConnect.exe`, the interactive terminal menu appears:
 
-### Main Menu:
 ```text
 ========================================================================
-        ____  _     _ _ _ ____                     
-       / ___|| |__ (_) | / ___|_      ____ _ _ __  
-       \___ \| |/ /| | | \___ \ \ /\ / / _` | '_ \ 
-        ___) |   < | | | |___) \ V  V / (_| | |_) |
-       |____/|_|\_|_|_|_|____/ \_/\_/ \__,_| .__/ 
-                                            |_|    
-           Peer-to-Peer University Skill Exchange  
-                   Terminal Prototype v1.0         
+   ____                                     ____                            _   
+  / ___|__ _ _ __ ___  _ __  _   _ ___     / ___|___  _ __  _ __   ___  ___| |_ 
+ | |   / _` | '_ ` _ \| '_ \| | | / __|   | |   / _ \| '_ \| '_ \ / _ \/ __| __|
+ | |__| (_| | | | | | | |_) | |_| \__ \   | |__| (_) | | | | | | |  __/ (__| |_ 
+  \____\__,_|_| |_| |_| .__/ \__,_|___/    \____\___/|_| |_|_| |_|\___|\___|\__|
+                      |_|                                                       
+           Student Networking & Peer Skill Exchange Platform
 ========================================================================
  MAIN MENU
 ------------------------------------------------------------------------
@@ -177,50 +196,10 @@ On launch, SkillSwap loads existing data from `data/students.txt` and `data/requ
 ------------------------------------------------------------------------
 ```
 
-### Try these quick actions during a demo or viva:
-1. **Option 1 (View All Profiles)**: View the roster of 8 pre-seeded students across Computer Science, Data Science, Design, IT, Mechanical, and Electrical Engineering.
-2. **Option 4 (Find Matches)**: Enter Student ID `101` (Anirudh Sharma: teaches C++, wants Python).
-   - Notice Candidate `102` (Priya Patel: teaches Python, wants C++) ranks **#1** with an **80% Mutual Exchange score**!
-   - Directly send a connection request from the prompt.
-3. **Option 6 (View Pending Requests)**: Observe requests currently queued in FIFO order.
-4. **Option 7 (Process Next Pending Request)**: Examine the oldest waiting request, view both sender and receiver profiles with skill exchange details, and choose **[1] Accept**.
-5. **Option 8 (View Active Connections)**: Enter Student ID `101` or `102` to see their active peer network maintained in `std::list<int>`.
-
----
-
-## 8. Manual Test Verification Checklist
-
-The prototype has been tested against the following scenarios:
-
-| Test Case | Procedure | Expected Result | Pass? |
-|---|---|---|---|
-| **Clean Build** | Run `g++ -std=c++17 -Wall -Wextra src/*.cpp` | Zero compilation errors and zero warnings. | **PASS** |
-| **Startup Seeding** | Delete `data/*.txt` and launch application | Creates `data/` directory and seeds realistic starter data safely. | **PASS** |
-| **Invalid Numeric Input** | Enter letters (e.g. `abc`) into menu choices | Recovers gracefully with warning; no infinite loop. | **PASS** |
-| **Self-Request Prevention** | Send request from ID 101 to ID 101 | Rejected with message: *Students cannot send requests to themselves.* | **PASS** |
-| **Duplicate Request Prevention**| Send a second request between same students | Rejected with duplicate pending request warning. | **PASS** |
-| **Queue FIFO Order** | Send request A, then request B, then process | Request A is presented first, followed by Request B. | **PASS** |
-| **Dynamic Dispatch** | Inspect profile by ID or name | Invokes virtual `displayProfile()` through `const User&`. | **PASS** |
-| **Active Connection List** | Accept a pending request | Added to both students' `std::list<int>`. | **PASS** |
-| **Active Disconnection** | Disconnect peer via Option 8 | Removed from both students' lists using `list::remove()`. | **PASS** |
-
----
-
-## 9. Scope Boundaries & Future Roadmap
-
-### Milestone 1 (Current 40% Scope) Completed:
-- Full modular C++17 architecture (`include/` and `src/`).
-- Complete domain models (`User`, `Student`, `Skill`, `ConnectionRequest`, `Match`).
-- All 5 required STL data structures in working features.
-- Algorithmic matching with max-heap priority queue.
-- FIFO queue request handling.
-- Active connection linked list management.
-- Robust flat-file persistence.
-- Complete documentation (`architecture.md`, `data_structures.md`, `README.md`).
-
-### Planned for Subsequent Milestones (Remaining 60%):
-- Real-time peer-to-peer messaging and session scheduling.
-- Student rating and reputation system based on completed exchanges.
-- Advanced multi-skill graph matching (e.g., 3-way circular skill trades).
-- User authentication and encrypted credentials.
-- Optional web frontend or graphical desktop UI.
+### Try these demo workflows:
+1. **Option 1**: Inspect the 8 pre-seeded student profiles across Computer Science, Data Science, Design, IT, Mechanical, and Electrical Engineering.
+2. **Option 4**: Enter Student ID `101` (Anirudh Sharma: teaches C++, wants Python).
+   - Candidate `102` (Priya Patel: teaches Python, wants C++) ranks **#1** with a **90% Mutual Exchange score**!
+3. **Option 6**: View pending connection requests queued in FIFO order.
+4. **Option 7**: Evaluate the oldest waiting request, inspect sender and receiver skill exchange details, and choose **[1] Accept** to create an active connection.
+5. **Option 8**: Enter Student ID `101` to view their active peer connection network stored in `std::list<int>`.
