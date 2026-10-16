@@ -1,14 +1,17 @@
 {
-  "name": "skillswap-cpp-terminal",
+  "name": "skillswap",
   "version": "1.0.0",
   "description": "SkillSwap — Peer-to-Peer Skill Exchange Terminal Prototype (C++17)",
+  "main": "server.js",
   "scripts": {
-    "build": "g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/user.cpp src/student.cpp src/connection_request.cpp src/match_engine.cpp src/file_manager.cpp src/skill_swap_app.cpp -o SkillSwap"
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "if which g++ >/dev/null 2>&1; then g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/user.cpp src/student.cpp src/connection_request.cpp src/match_engine.cpp src/file_manager.cpp src/skill_swap_app.cpp -o SkillSwap; else echo \"Using precompiled SkillSwap binary\"; fi"
   },
   "keywords": [
     "cpp17",
-    "oop",
     "terminal",
+    "oop",
     "data-structures"
   ],
   "author": "SkillSwap Team",
