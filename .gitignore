@@ -1,0 +1,7 @@
+CampusConnect.exe
+*.exe
+*.o
+*.obj
+*.out
+build/
+.vscode/*.log
