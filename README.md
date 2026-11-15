@@ -5,19 +5,22 @@ project written entirely in standard C++17.
 
 ## Current status
 
-The project contains student management, skill matching, and a terminal menu
-for connection requests. Profiles and requests are stored only in memory and
-are cleared when the program exits. No files, database, or other persistence
-is used.
+The project contains student management, skill matching, connection requests,
+and simple file handling for student profiles. Student profiles are saved in
+`data/students.txt` when the user chooses **Save Students** or exits.
+
+Each line in the file uses this simple format:
+
+```text
+id|name|department|year|skill1;skill2|interest1;interest2
+```
 
 ## Skill matching
 
 `CampusConnect::findMatches()` ranks candidates with this score:
 
 ```text
-score = 10 * learningMatches
-      + 15 * exchangeMatches
-      + 5 * mutualExchangeBonus
+score = 15 * sharedTeachableSkills
       + 2 * sharedInterests
 ```
 

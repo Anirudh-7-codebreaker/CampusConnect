@@ -1,7 +1,6 @@
 #include "student.h"
 
 #include <algorithm>
-#include <cctype>
 #include <iostream>
 
 User::User(std::string userId, std::string name)
@@ -23,23 +22,6 @@ Student::Student(std::string studentId, std::string name,
         : User(studentId, name),
             department_(department),
       year_(year) {}
-
-Student::Student(std::string studentId, std::string name,
-                 std::string department, int year,
-                 const std::vector<std::string>& teachableSkills,
-                 const std::vector<std::string>& desiredSkills,
-                 const std::vector<std::string>& interests)
-                : Student(studentId, name, department, year) {
-    for (const std::string& skill : teachableSkills) {
-        addTeachableSkill(skill);
-    }
-    for (const std::string& skill : desiredSkills) {
-        addDesiredSkill(skill);
-    }
-    for (const std::string& interest : interests) {
-        addInterest(interest);
-    }
-}
 
 Student::Student(std::string studentId, std::string name,
                  std::vector<std::string> skills)
@@ -65,37 +47,35 @@ const std::vector<std::string>& Student::getTeachableSkills() const {
     return teachableSkills_;
 }
 
-const std::vector<std::string>& Student::getDesiredSkills() const {
-    return desiredSkills_;
-}
-
 const std::vector<std::string>& Student::getInterests() const {
     return interests_;
 }
 
 bool Student::addTeachableSkill(const std::string& skill) {
-    return addUniqueName(teachableSkills_, skill);
-}
-
-bool Student::addDesiredSkill(const std::string& skill) {
-    return addUniqueName(desiredSkills_, skill);
-}
-
-bool Student::addInterest(const std::string& interest) {
-    return addUniqueName(interests_, interest);
-}
-
-bool Student::canTeachSkill(const std::string& skill) const {
-    const std::string normalizedSkill = normalizeName(skill);
-    if (normalizedSkill.empty()) {
+    if (skill.empty() ||
+        std::find(teachableSkills_.begin(), teachableSkills_.end(), skill) !=
+            teachableSkills_.end()) {
         return false;
     }
 
-    return std::any_of(teachableSkills_.begin(), teachableSkills_.end(),
-                       [&normalizedSkill](const std::string& teachableSkill) {
-                           return normalizeName(teachableSkill) ==
-                                  normalizedSkill;
-                       });
+    teachableSkills_.push_back(skill);
+    return true;
+}
+
+bool Student::addInterest(const std::string& interest) {
+    if (interest.empty() ||
+        std::find(interests_.begin(), interests_.end(), interest) !=
+            interests_.end()) {
+        return false;
+    }
+
+    interests_.push_back(interest);
+    return true;
+}
+
+bool Student::canTeachSkill(const std::string& skill) const {
+    return std::find(teachableSkills_.begin(), teachableSkills_.end(), skill) !=
+           teachableSkills_.end();
 }
 
 void Student::displayProfile() const {
@@ -112,14 +92,6 @@ void Student::displayProfile() const {
         std::cout << teachableSkills_[index];
     }
 
-    std::cout << "\nDesired skills: ";
-    for (std::size_t index = 0; index < desiredSkills_.size(); ++index) {
-        if (index > 0) {
-            std::cout << ", ";
-        }
-        std::cout << desiredSkills_[index];
-    }
-
     std::cout << "\nInterests: ";
     for (std::size_t index = 0; index < interests_.size(); ++index) {
         if (index > 0) {
@@ -128,47 +100,6 @@ void Student::displayProfile() const {
         std::cout << interests_[index];
     }
     std::cout << '\n';
-}
-
-std::string Student::normalizeName(const std::string& name) {
-    std::size_t first = 0;
-    while (first < name.size() &&
-           std::isspace(static_cast<unsigned char>(name[first]))) {
-        ++first;
-    }
-
-    std::size_t last = name.size();
-    while (last > first &&
-           std::isspace(static_cast<unsigned char>(name[last - 1]))) {
-        --last;
-    }
-
-    std::string normalized = name.substr(first, last - first);
-    std::transform(normalized.begin(), normalized.end(), normalized.begin(),
-                   [](unsigned char character) {
-                       return static_cast<char>(std::tolower(character));
-                   });
-    return normalized;
-}
-
-bool Student::addUniqueName(std::vector<std::string>& names,
-                            const std::string& name) {
-    const std::string normalizedName = normalizeName(name);
-    if (normalizedName.empty()) {
-        return false;
-    }
-
-    const bool alreadyExists =
-        std::any_of(names.begin(), names.end(),
-                    [&normalizedName](const std::string& existingName) {
-                        return normalizeName(existingName) == normalizedName;
-                    });
-    if (alreadyExists) {
-        return false;
-    }
-
-    names.push_back(normalizedName);
-    return true;
 }
 
 ConnectionRequest::ConnectionRequest(std::string requestId,

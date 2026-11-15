@@ -13,9 +13,7 @@ struct Match {
     int candidateStudentId;
     std::string candidateName;
     int score;
-    int learningMatches;
     int exchangeMatches;
-    int mutualExchangeBonus;
     int sharedInterests;
     std::string explanation;
 };
@@ -29,7 +27,6 @@ public:
     bool registerStudent(int studentId, const std::string& name,
                          const std::string& department, int year,
                          const std::vector<std::string>& teachableSkills,
-                         const std::vector<std::string>& desiredSkills,
                          const std::vector<std::string>& interests);
     bool addStudent(const Student& student);
     void displayAllProfiles() const;

@@ -17,17 +17,20 @@ bool MatchComparator::operator()(const Match& left,
 bool CampusConnect::registerStudent(
     int studentId, const std::string& name, const std::string& department,
     int year, const std::vector<std::string>& teachableSkills,
-    const std::vector<std::string>& desiredSkills,
     const std::vector<std::string>& interests) {
     if (studentId <= 0 || normalizeSearchTerm(name).empty() ||
         normalizeSearchTerm(department).empty() || year <= 0 ||
-        !hasValidNames(teachableSkills) || !hasValidNames(desiredSkills) ||
-        !hasValidNames(interests)) {
+        !hasValidNames(teachableSkills) || !hasValidNames(interests)) {
         return false;
     }
 
-    Student student(std::to_string(studentId), name, department, year,
-                    teachableSkills, desiredSkills, interests);
+    Student student(std::to_string(studentId), name, department, year);
+    for (const std::string& skill : teachableSkills) {
+        student.addTeachableSkill(skill);
+    }
+    for (const std::string& interest : interests) {
+        student.addInterest(interest);
+    }
     return addStudent(student);
 }
 
@@ -49,7 +52,6 @@ bool CampusConnect::addStudent(const Student& student) {
         normalizeSearchTerm(student.getDepartment()).empty() ||
         student.getYear() <= 0 ||
         !hasValidNames(student.getTeachableSkills()) ||
-        !hasValidNames(student.getDesiredSkills()) ||
         !hasValidNames(student.getInterests())) {
         return false;
     }
@@ -110,8 +112,11 @@ std::vector<Student> CampusConnect::searchByTeachableSkill(
     }
 
     for (const Student& student : students_) {
-        if (student.canTeachSkill(normalizedSkill)) {
-            matches.push_back(student);
+        for (const std::string& studentSkill : student.getTeachableSkills()) {
+            if (normalizeSearchTerm(studentSkill) == normalizedSkill) {
+                matches.push_back(student);
+                break;
+            }
         }
     }
     return matches;
@@ -121,19 +126,19 @@ bool CampusConnect::addDemoProfiles() {
     const std::size_t originalSize = students_.size();
     const bool addedAll =
         registerStudent(1001, "Aarav Mehta", "Computer Science", 2,
-                        {"C++", "Algorithms"}, {"UI Design"},
+                        {"C++", "Algorithms"},
                         {"Robotics", "Photography"}) &&
         registerStudent(1002, "Diya Nair", "Information Technology", 3,
-                        {"UI Design", "Figma"}, {"Algorithms"},
+                        {"UI Design", "Figma"},
                         {"Reading", "Robotics"}) &&
         registerStudent(1003, "Rohan Iyer", "Electrical Engineering", 1,
-                        {"Arduino", "Embedded Systems"}, {"C++"},
+                        {"Arduino", "Embedded Systems"},
                         {"Music", "Cycling"}) &&
         registerStudent(1004, "Ananya Das", "Mechanical Engineering", 4,
-                        {"3D Modeling", "CAD"}, {"Embedded Systems"},
+                        {"3D Modeling", "CAD"},
                         {"Robotics", "Volunteering"}) &&
         registerStudent(1005, "Kabir Shah", "Business Administration", 2,
-                        {"Public Speaking", "Marketing"}, {"UI Design"},
+                        {"Public Speaking", "Marketing"},
                         {"Entrepreneurship", "Photography"});
 
     if (!addedAll) {
@@ -169,30 +174,17 @@ CampusConnect::findMatches(int currentStudentId) const {
             continue;
         }
 
-        int learningMatches = 0;
-        for (const std::string& desiredSkill : currentStudent.getDesiredSkills()) {
-            for (const std::string& teachableSkill : candidate.getTeachableSkills()) {
-                if (normalizeSearchTerm(desiredSkill) ==
-                    normalizeSearchTerm(teachableSkill)) {
-                    ++learningMatches;
-                    break;
-                }
-            }
-        }
-
-        int exchangeMatches = 0;
+        int sharedSkills = 0;
         for (const std::string& teachableSkill : currentStudent.getTeachableSkills()) {
-            for (const std::string& desiredSkill : candidate.getDesiredSkills()) {
+            for (const std::string& candidateSkill : candidate.getTeachableSkills()) {
                 if (normalizeSearchTerm(teachableSkill) ==
-                    normalizeSearchTerm(desiredSkill)) {
-                    ++exchangeMatches;
+                    normalizeSearchTerm(candidateSkill)) {
+                    ++sharedSkills;
                     break;
                 }
             }
         }
 
-        const int mutualExchangeBonus =
-            learningMatches > 0 && exchangeMatches > 0 ? 1 : 0;
         int sharedInterests = 0;
         for (const std::string& currentInterest : currentStudent.getInterests()) {
             for (const std::string& candidateInterest : candidate.getInterests()) {
@@ -204,30 +196,21 @@ CampusConnect::findMatches(int currentStudentId) const {
             }
         }
 
-        if (learningMatches == 0 && exchangeMatches == 0) {
+        if (sharedSkills == 0) {
             continue;
         }
 
         Match match;
         match.candidateStudentId = candidateId;
         match.candidateName = candidate.getName();
-        match.learningMatches = learningMatches;
-        match.exchangeMatches = exchangeMatches;
-        match.mutualExchangeBonus = mutualExchangeBonus;
+        match.exchangeMatches = sharedSkills;
         match.sharedInterests = sharedInterests;
-        match.score = 10 * learningMatches + 15 * exchangeMatches +
-                      5 * mutualExchangeBonus + 2 * sharedInterests;
+        match.score = 15 * sharedSkills + 2 * sharedInterests;
 
         std::ostringstream explanation;
-        explanation << learningMatches
-                    << " skill(s) match what the current student wants to "
-                       "learn, "
-                    << exchangeMatches
-                    << " skill(s) match what the candidate wants to learn, "
+        explanation << sharedSkills
+                    << " shared teachable skill(s), "
                     << sharedInterests << " shared interest(s)";
-        if (mutualExchangeBonus == 1) {
-            explanation << ", including a mutual skill exchange";
-        }
         match.explanation = explanation.str();
         matches.push(match);
     }
@@ -251,7 +234,6 @@ void CampusConnect::displayMatches(int currentStudentId) const {
         std::cout << rank++ << ". " << match.candidateName << " (ID "
                   << match.candidateStudentId << ")\n"
                   << "   Score: " << match.score << '\n'
-                  << "   Learning matches: " << match.learningMatches << '\n'
                   << "   Exchange matches: " << match.exchangeMatches << '\n'
                   << "   Shared interests: " << match.sharedInterests << '\n'
                   << "   Explanation: " << match.explanation << '\n';
@@ -340,19 +322,29 @@ const std::vector<Student>& CampusConnect::getStudents() const {
 }
 
 std::string CampusConnect::normalizeSearchTerm(const std::string& value) {
-    std::size_t first = 0;
-    while (first < value.size() &&
-           std::isspace(static_cast<unsigned char>(value[first]))) {
-        ++first;
+    std::string normalized;
+    bool inWhitespace = false;
+
+    for (const unsigned char ch : value) {
+        if (std::isspace(ch)) {
+            if (!normalized.empty() && !inWhitespace) {
+                normalized.push_back(' ');
+                inWhitespace = true;
+            }
+            continue;
+        }
+
+        normalized.push_back(static_cast<char>(ch));
+        inWhitespace = false;
     }
 
-    std::size_t last = value.size();
-    while (last > first &&
-           std::isspace(static_cast<unsigned char>(value[last - 1]))) {
-        --last;
+    while (!normalized.empty() && normalized.front() == ' ') {
+        normalized.erase(normalized.begin());
+    }
+    while (!normalized.empty() && normalized.back() == ' ') {
+        normalized.pop_back();
     }
 
-    std::string normalized = value.substr(first, last - first);
     std::transform(normalized.begin(), normalized.end(), normalized.begin(),
                    [](unsigned char character) {
                        return static_cast<char>(std::tolower(character));

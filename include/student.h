@@ -25,11 +25,6 @@ public:
     Student();
     Student(std::string studentId, std::string name,
             std::string department, int year);
-    Student(std::string studentId, std::string name,
-            std::string department, int year,
-            const std::vector<std::string>& teachableSkills,
-            const std::vector<std::string>& desiredSkills,
-            const std::vector<std::string>& interests);
 
     Student(std::string studentId, std::string name,
             std::vector<std::string> skills);
@@ -38,25 +33,18 @@ public:
     int getYear() const;
     const std::vector<std::string>& getSkills() const;
     const std::vector<std::string>& getTeachableSkills() const;
-    const std::vector<std::string>& getDesiredSkills() const;
     const std::vector<std::string>& getInterests() const;
 
     bool addTeachableSkill(const std::string& skill);
-    bool addDesiredSkill(const std::string& skill);
     bool addInterest(const std::string& interest);
     bool canTeachSkill(const std::string& skill) const;
 
     void displayProfile() const override;
 
 private:
-    static std::string normalizeName(const std::string& name);
-    static bool addUniqueName(std::vector<std::string>& names,
-                              const std::string& name);
-
     std::string department_;
     int year_ = 0;
     std::vector<std::string> teachableSkills_;
-    std::vector<std::string> desiredSkills_;
     std::vector<std::string> interests_;
 };
 

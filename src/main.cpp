@@ -1,4 +1,5 @@
 #include "campus_connect.h"
+#include "file_manager.h"
 
 #include <iostream>
 #include <sstream>
@@ -68,7 +69,8 @@ void displayMenu() {
               << "7. View Pending Requests\n"
               << "8. Process Next Request\n"
               << "9. View Active Connections\n"
-              << "10. Exit\n";
+              << "10. Save Students\n"
+              << "11. Exit\n";
 }
 
 bool registerStudentFromMenu(CampusConnect& campus) {
@@ -77,7 +79,6 @@ bool registerStudentFromMenu(CampusConnect& campus) {
     std::string name;
     std::string department;
     std::string teachableSkills;
-    std::string desiredSkills;
     std::string interests;
 
     if (!readInteger("Student ID: ", studentId) ||
@@ -85,14 +86,12 @@ bool registerStudentFromMenu(CampusConnect& campus) {
         !readText("Department: ", department) ||
         !readInteger("Year: ", year) ||
         !readText("Teachable skills (comma-separated): ", teachableSkills) ||
-        !readText("Desired skills (comma-separated): ", desiredSkills) ||
         !readText("Interests (comma-separated): ", interests)) {
         return false;
     }
 
     if (campus.registerStudent(studentId, name, department, year,
-                               splitList(teachableSkills),
-                               splitList(desiredSkills), splitList(interests))) {
+                               splitList(teachableSkills), splitList(interests))) {
         std::cout << "Student registered successfully.\n";
     } else {
         std::cout << "Student could not be registered. Check the values and "
@@ -105,11 +104,20 @@ bool registerStudentFromMenu(CampusConnect& campus) {
 
 int main() {
     CampusConnect campus;
-    campus.addDemoProfiles();
+    const std::string studentFile = "data/students.txt";
+    const std::vector<Student> savedStudents =
+        FileManager::loadStudents(studentFile);
+
+    for (const Student& student : savedStudents) {
+        campus.addStudent(student);
+    }
+
+    if (campus.getStudents().empty()) {
+        campus.addDemoProfiles();
+    }
 
     std::cout << "Welcome to Campus Connect!\n"
-              << "Profiles and connection requests last only for this "
-                 "program session.\n";
+              << "Student profiles are loaded from " << studentFile << ".\n";
 
     while (true) {
         displayMenu();
@@ -186,10 +194,19 @@ int main() {
             printHeading("Active Connections");
             campus.displayActiveConnections();
         } else if (choice == 10) {
+            if (FileManager::saveStudents(studentFile, campus.getStudents())) {
+                std::cout << "Students saved successfully.\n";
+            } else {
+                std::cout << "Students could not be saved.\n";
+            }
+        } else if (choice == 11) {
+            if (!FileManager::saveStudents(studentFile, campus.getStudents())) {
+                std::cout << "Students could not be saved.\n";
+            }
             std::cout << "Goodbye!\n";
             return 0;
         } else {
-            std::cout << "Please choose a number from 1 to 10.\n";
+            std::cout << "Please choose a number from 1 to 11.\n";
         }
     }
 }
