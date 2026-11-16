@@ -1,0 +1,5 @@
+1001|Aarav Mehta|Computer Science|2|C++;Algorithms|Robotics;Photography
+1002|Diya Nair|Information Technology|3|UI Design;Figma|Reading;Robotics
+1003|Rohan Iyer|Electrical Engineering|1|Arduino;Embedded Systems|Music;Cycling
+1004|Ananya Das|Mechanical Engineering|4|3D Modeling;CAD|Robotics;Volunteering
+1005|Kabir Shah|Business Administration|2|Public Speaking;Marketing|Entrepreneurship;Photography

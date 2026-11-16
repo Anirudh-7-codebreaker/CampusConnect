@@ -6,14 +6,8 @@ project written entirely in standard C++17.
 ## Current status
 
 The project contains student management, skill matching, connection requests,
-and simple file handling for student profiles. Student profiles are saved in
-`data/students.txt` when the user chooses **Save Students** or exits.
-
-Each line in the file uses this simple format:
-
-```text
-id|name|department|year|skill1;skill2|interest1;interest2
-```
+and simple file handling for newly registered student names. Each successful
+registration appends one name to `Saved New Students.txt`.
 
 ## Skill matching
 
@@ -34,7 +28,7 @@ rankings; it does not send connection requests.
 From the project root, run:
 
 ```text
-g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/student.cpp src/campus_connect.cpp -o CampusConnect.exe
+g++ -std=c++17 -Wall -Wextra -g -I include src/main.cpp src/student.cpp src/campus_connect.cpp src/file_handler.cpp -o CampusConnect.exe
 ```
 
 Run the program with:
@@ -45,3 +39,9 @@ Run the program with:
 
 The same build is available through the **Build Campus Connect** task in VS
 Code.
+
+## File handling
+
+Names are appended with `std::ofstream` and `std::ios::app`, so existing names
+are not overwritten. The file is created automatically when needed, and no
+entry is written when registration fails.

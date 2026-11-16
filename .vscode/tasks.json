@@ -15,7 +15,7 @@
                 "${workspaceFolder}\\src\\main.cpp",
                 "${workspaceFolder}\\src\\student.cpp",
                 "${workspaceFolder}\\src\\campus_connect.cpp",
-                "${workspaceFolder}\\src\\file_manager.cpp",
+                "${workspaceFolder}\\src\\file_handler.cpp",
                 "-o",
                 "${workspaceFolder}\\CampusConnect.exe"
             ],

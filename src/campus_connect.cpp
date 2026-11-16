@@ -1,4 +1,5 @@
 #include "campus_connect.h"
+#include "file_handler.h"
 
 #include <algorithm>
 #include <cctype>
@@ -31,7 +32,11 @@ bool CampusConnect::registerStudent(
     for (const std::string& interest : interests) {
         student.addInterest(interest);
     }
-    return addStudent(student);
+    if (addStudent(student)) {
+        saveNewStudentName(name);
+        return true;
+    }
+    return false;
 }
 
 bool CampusConnect::addStudent(const Student& student) {
